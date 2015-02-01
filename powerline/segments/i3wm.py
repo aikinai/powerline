@@ -1,4 +1,5 @@
 # vim:fileencoding=utf-8:noet
+from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 import i3
 
@@ -22,5 +23,5 @@ def workspaces(pl):
 	'''
 	return [{
 		'contents': w['name'],
-		'highlight_group': calcgrp(w)
+		'highlight_groups': calcgrp(w)
 	} for w in i3.get_workspaces()]

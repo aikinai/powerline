@@ -1,27 +1,28 @@
-#!/bin/sh
-: ${PYTHON:=python}
+#!/bin/bash
+. tests/bot-ci/scripts/common/main.sh
+
 FAILED=0
-export PYTHONPATH="${PYTHONPATH}:`realpath .`"
-for file in tests/test_*.py ; do
-	if ! ${PYTHON} $file --verbose --catch ; then
-		echo "Failed test(s) from $file"
+
+export PATH="/opt/fish/bin:${PATH}"
+
+if test "$PYTHON_IMPLEMENTATION" = "CPython" ; then
+	export PATH="/opt/zsh-${PYTHON_MM}${USE_UCS2_PYTHON:+-ucs2}/bin:${PATH}"
+fi
+
+if test -n "$USE_UCS2_PYTHON" ; then
+	export LD_LIBRARY_PATH="/opt/cpython-ucs2-$UCS2_PYTHON_VARIANT/lib${LD_LIBRARY_PATH:+:}$LD_LIBRARY_PATH"
+	set +e
+	. virtualenvwrapper.sh
+	workon cpython-ucs2-$UCS2_PYTHON_VARIANT
+	set -e
+fi
+
+export PYTHON="${PYTHON:=python}"
+export PYTHONPATH="${PYTHONPATH}${PYTHONPATH:+:}`realpath .`"
+for script in tests/run_*_tests.sh ; do
+	if ! sh $script ; then
+		echo "Failed $script"
 		FAILED=1
 	fi
 done
-if ! ${PYTHON} scripts/powerline-lint -p powerline/config_files ; then
-	echo "Failed powerline-lint"
-	FAILED=1
-fi
-for script in tests/*.vim ; do
-	if ! vim -u NONE -S $script || test -f message.fail ; then
-		echo "Failed script $script" >&2
-		cat message.fail >&2
-		rm message.fail
-		FAILED=1
-	fi
-done
-if ! sh tests/test_shells/test.sh ; then
-	echo "Failed shells"
-	FAILED=1
-fi
 exit $FAILED

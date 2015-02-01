@@ -1,15 +1,27 @@
-POWERLINE_COMMAND="$PWD/scripts/powerline -p $PWD/powerline/config_files"
-POWERLINE_COMMAND="$POWERLINE_COMMAND -t default_leftonly.segment_data.hostname.args.only_if_ssh=false"
-POWERLINE_COMMAND="$POWERLINE_COMMAND -c ext.shell.theme=default_leftonly"
-VIRTUAL_ENV=
-source powerline/bindings/bash/powerline.sh ; cd tests/shell/3rd
+set_theme_option() {
+	export POWERLINE_THEME_OVERRIDES="${POWERLINE_THEME_OVERRIDES};$1=$2"
+}
+set_theme() {
+	export POWERLINE_CONFIG_OVERRIDES="ext.shell.theme=$1"
+}
+set_theme_option default_leftonly.segment_data.hostname.args.only_if_ssh false
+set_theme default_leftonly
+export VIRTUAL_ENV=
+source powerline/bindings/bash/powerline.sh
+cd tests/shell/3rd
 cd .git
 cd ..
 VIRTUAL_ENV="$HOME/.virtenvs/some-virtual-environment"
 VIRTUAL_ENV=
-bash -c 'echo $$>pid ; while true ; do sleep 0.1s ; done' &
+bgscript.sh & waitpid.sh
 false
 kill `cat pid` ; sleep 1s
+set_theme_option default_leftonly.segment_data.hostname.display false
+set_theme_option default_leftonly.segment_data.user.display false
+echo '
+abc
+def
+'
 cd "$DIR1"
 cd ../"$DIR2"
 cd ../'\[\]'
@@ -18,6 +30,8 @@ cd ../'#[bold]'
 cd ../'(echo)'
 cd ../'$(echo)'
 cd ../'`echo`'
+cd ../'«Unicode!»'
+set_theme_option default_leftonly.dividers.left.hard \$ABC
 false
 true is the last line
 exit
